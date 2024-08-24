@@ -1,0 +1,28 @@
+.todo-container{
+    background-color: black;
+    width: 70vw;
+    margin: 5em auto;
+    border-radius: 10px;
+    padding: 16px;
+    color: #F2BBBB;
+}
+.input-container{
+    background: black;
+    padding: 0.5em;
+    border-radius: 1em;
+   
+
+}
+
+.list-taks{
+    font-size: 1.25rem;
+    font-weight: bold;
+    font-style: italic;
+    color: #ffffff;
+    background-color:black;
+    border: 1px solid #F2BBBB;
+    border-radius: 5px;
+    padding: 0.5em;
+    margin: 0.5em;
+
+}
