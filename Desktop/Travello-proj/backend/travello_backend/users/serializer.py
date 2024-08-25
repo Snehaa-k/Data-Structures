@@ -26,7 +26,7 @@ class UserSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['profile_image','address','bio','country_state','user']
+        fields = ['id','profile_image','address','bio','country_state','user']
 
 
 class CountryField(serializers.PrimaryKeyRelatedField):

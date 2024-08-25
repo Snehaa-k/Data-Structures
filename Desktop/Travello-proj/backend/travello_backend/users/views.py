@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+import json
 from tokenize import TokenError
 from django.shortcuts import render
 from .models import Usermodels,UserProfile,TravelLeaderForm,Country
@@ -305,15 +306,25 @@ class TravellerProfile(APIView):
 
     def get(self, request, *args, **kwargs):
         try:
-            profile = Usermodels.objects.get(id=request.user.id)
+            # Get the user model
+            user = Usermodels.objects.get(id=request.user.id)
 
-            print(request.user)
+            # Attempt to get the user's profile
+            try:
+                detail = UserProfile.objects.get(user=request.user.id)
+                user_serializer = UserSerializer(user)
+
+                profile_serializer = ProfileSerializer(detail)
+                return Response({"profile":profile_serializer.data,"user":user_serializer.data}, status=status.HTTP_200_OK)
+            except UserProfile.DoesNotExist:
+                # If UserProfile does not exist, return the user model data
+                user_serializer = UserSerializer(user)
+                return Response(user_serializer.data, status=status.HTTP_200_OK)
+
         except Usermodels.DoesNotExist:
             return Response({'error': 'Profile not found'}, status=status.HTTP_404_NOT_FOUND)
-
-        serializer = UserSerializer(profile)
-        return Response(serializer.data)
-
+    
+    
 
         
 
@@ -321,7 +332,7 @@ class TravellerProfile(APIView):
     
 
 class UserProfileEdit(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         user_id = request.user.id
@@ -336,66 +347,48 @@ class UserProfileEdit(APIView):
 
         serializer = UserSerializer(profile)
         return Response(serializer.data)
+    
 
-    def put(self, request, *args, **kwargs):
+    
+
+class UserProfileCreate(APIView):
+    def post(self, request, *args, **kwargs):
         user_id = request.user.id
+        print(request.data)
+        
+        
+        userprofile, created = UserProfile.objects.get_or_create(user_id=user_id)
+        
+        address = request.data.get('address')
+        bio = request.data.get('bio')
+        country_state = request.data.get('country_state')
+        image_file = request.FILES.get('profile_image') 
+        
+        if image_file:
+            userprofile.profile_image = image_file
+        
+        userprofile.address = address
+        userprofile.bio = bio
+        userprofile.country_state = country_state
+        userprofile.save()
+        
+        if created:
+            message = "Profile created successfully"
+        else:
+            message = "Profile updated successfully"
+        
+        return Response({"message": message}, status=status.HTTP_200_OK)
+    
+    def get(self, request, *args, **kwargs):
+        user_id = request.user.id
+        print(user_id)
         try:
-            profile = UserProfile.objects.get(user_id=user_id)
+            profile = UserProfile.objects.get(user=user_id)
+
+            print(profile)
+            
         except UserProfile.DoesNotExist:
             return Response({'error': 'Profile not found'}, status=status.HTTP_404_NOT_FOUND)
 
-      
-        username = request.data.get('username', profile.user.username)
-        address = request.data.get('address',profile.address)
-        bio  = request.data.get('bio',profile.bio)
-        country_state = request.data.get('country_state',profile.country_state)
-
-        profile_image = request.FILES.get('profile_image')
-
-        
-        if username:
-            profile.user.username = username
-        if address:
-            profile.address = address
-        if profile_image:
-            profile.profile_image = profile_image
-        if bio:
-            profile.bio = bio
-        if country_state:
-            profile.country_state = country_state
-        
-        else:
-           return Response({'error': 'invalid'}, status=status.HTTP_404_NOT_FOUND) 
-
-      
-        profile.save()
-
-       
         serializer = ProfileSerializer(profile)
-        return Response({"message": "Profile Edited successfully. OTP sent.",
-                             "user": serializer.data }, status=status.HTTP_201_CREATED)
-
-
-    
-# class RefreshTokenAPIView(APIView):
-   
-#     def post(self, request, *args, **kwargs):
-       
-#         refresh_token = request.data.get("refresh")
-
-#         if not refresh_token:
-#             return Response({"error": "Refresh token is required."}, status=status.HTTP_400_BAD_REQUEST)
-
-#         try:
-           
-#             refresh = RefreshToken(refresh_token)
-#             new_access_token = str(refresh.access_token)
-
-#             return Response({"accessToken": new_access_token}, status=status.HTTP_200_OK)
-        
-#         except TokenError as e:
-           
-#             return Response({"error": str(e)}, status=status.HTTP_401_UNAUTHORIZED)
-    
-    
-
+        return Response(serializer.data)

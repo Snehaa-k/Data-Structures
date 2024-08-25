@@ -10,7 +10,6 @@ urlpatterns = [
     path('userpreference/',views.Userpreference.as_view(),name = 'preference1'),
     path('login/',views.CustomTokenObtainPairView.as_view(),name = 'login'),           
     path('send/',views.SendOTPView.as_view(),name = 'send'),
-    path('userprofie/',views.UserProfileEdit.as_view(),name = 'userprofile'),
     path('formsubmission/',views.FormSubmissionView.as_view(),name = 'form'),
     path('formview/',views.TravelLeaderListView.as_view(),name = 'formview'),
     path('details/<int:id>/',views.TravelLeaderDetailView.as_view(),name = 'details'),
@@ -20,6 +19,7 @@ urlpatterns = [
     path('block/<int:pk>/', views.is_Block.as_view(), name='block'),
     path('travellerprofile/', views.TravellerProfile.as_view(), name='travellerprofile'),
     path('editprofile/', views.UserProfileEdit.as_view(), name='editprofile'),
+    path('profile/', views.UserProfileCreate.as_view(), name='udateprofile'),
     # path('token/refresh/', views.RefreshTokenAPIView.as_view(), name='token_refresh'),
 
 
