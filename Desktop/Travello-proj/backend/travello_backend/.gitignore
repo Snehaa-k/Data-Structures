@@ -1,4 +1,16 @@
 myenv/
 *.pyc
 __pycache__/
+
+
+
+# Django
+*.log
+*.pot
+*.pyc
+*.pyo
 db.sqlite3
+
+# Virtual environment
+# venv/
+.env
